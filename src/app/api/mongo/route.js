@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-const { MongoClient } = ("mongodb");
+// const { MongoClient } = ("mongodb");
+var MongoClient = require('mongodb').MongoClient;
 export async function GET(request) {
     return   NextResponse.json({"a":34})
 }

@@ -1,20 +1,53 @@
-// import React, { useState } from 'react';
+"use client"
+import React, { useState, useEffect } from 'react';
 import Header from '/components/Header';
+
 
 export default function Home() {
 
   const ProductName=('Mango');
   const Price=('100');
+  const [ productForm,setProductForm]=useState({})
 
+  const addProduct = async (e) => {
+    // e.preventDefault();
+    try {
+      const response = await fetch('/api/product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productForm)
+      });
+
+      if (response.ok) {
+        // Product added successfully
+        setAlert("Your Product has been added!")
+        setProductForm({})
+      } else {
+        // Handle error case
+        console.log('Error adding product');
+      }
+    } catch (error) {
+      console.log('Error:', error);
+    }
+
+  }
+
+
+ const handleChange=(e)=>{
+  setProductForm({...productForm,[e.target.name]:e.target.value})
+
+ }
   return (
     <>
   <div className='container mx-auto'>
     <Header />
             {/* Searching a product  */}
   <div className="container mx-auto">    
-  <h1 className=" text-3xl font-bold mt-8">Search a Product</h1>
+  <h1 className=" text-3xl font-bold mt-8 my-2">Search a Product</h1>
 
-  <div className="flex items-center mb-4">
+  <div className="flex items-center mb-4 my-2">
   <input
     type="text"
     // value={searchQuery}
@@ -44,15 +77,16 @@ export default function Home() {
   </div>
       
 
-      <div className="container bg-red-50 mx-auto">
+      <div className="container mx-auto">
       <h1 className=" text-3xl font-bold mb-6">Add a Product</h1>
         <form>
           <div className="mb-4">
             <label htmlFor="productName" className="block mb-2">Product Name</label>
             <input
               type="text"
+              name="slug"
               id="productName"
-          
+              onChange={handleChange}
               className="border border-gray-300 px-4 py-2 w-full"
             />
           </div>
@@ -61,6 +95,8 @@ export default function Home() {
             <input
               type="number"
               id="quantity"
+              name="quantity"
+              onChange={handleChange}
               
               className="border border-gray-300 px-4 py-2 w-full"
             />
@@ -71,14 +107,15 @@ export default function Home() {
             <input
               type="number"
               id="price"
-             
+              name="price"
+              onChange={handleChange}
               className="border border-gray-300 px-4 py-2 w-full"
             />
           </div>
 
           <button
-            // onClick={handleAddProduct}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={addProduct}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 my-3"
           >
             Add Product
           </button>
@@ -89,11 +126,11 @@ export default function Home() {
 
 {/* // Display Current Stock  */}
 
-<div className="container bg-red-50 mx-auto">
+<div className="container mx-auto">
         {/* <h1 className="font-bold mb-6 my-10">Display Current Stock </h1> */}
 
 
-        <h1 className=" text-3xl font-bold mb-6">Display Current Stock</h1>
+        <h1 className=" text-3xl font-bold mb-6 my-5">Display Current Stock</h1>
 
         <table className="w-full mt-4">
           <thead>
