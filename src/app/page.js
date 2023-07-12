@@ -11,16 +11,27 @@ export default function Home() {
 
   const [alert, setAlert] = useState("");
   const [products, setProducts] = useState([]);
-  const [dropdown, setDropdown] = useState([{
-    "_id": "64a8f557212258c3c26e230d",
-    "slug": "ka",
-    "quantity": "1",
-    "price": "1"
-    }])
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [dropdown, setDropdown] = useState([
+    // {
+    //   "_id": "64aa378851b721f453bc2b36",
+    //   "slug": "tshirt",
+    //   "quantity": "1",
+    //   "price": "1"
+    //   },
+    //   {
+    //     "_id": "64aa378851b721f453bc2b36",
+    //     "slug": "jeans",
+    //     "quantity": "1",
+    //     "price": "1"
+    //     }
+
+  ])
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await fetch("http://localhost:3000/api/productb");
+      const response = await fetch("/api/product");
       let rjson = await response.json();
       setProducts(rjson.products);
     };
@@ -60,55 +71,116 @@ export default function Home() {
   const handleChange = (e) => {
     setProductForm({ ...productForm, [e.target.name]: e.target.value });
   };
+
+  const onDropdownEdit = async (e) => {
+    setQuery(e.target.value);
+
+    if (!loading) {
+      setLoading(true);
+      setDropdown([]);
+      const response = await fetch("/api/search?query="+query);
+      let rjson = await response.json();
+      setDropdown(rjson.products);
+      setLoading(false);
+    }
+  };
+
   return (
     <>
-      <div className="container mx-auto">
+       <div className="container mx-2 my-4">
         <Header />
-
-        
-        
-        {/* Searching a product  */}
-        <div className="container mx-auto">
-          <div className="text-green-800 text-center"></div>
-          <h1 className=" text-3xl font-bold mt-8 my-2">Search a Product</h1>
-
-          <div className="flex items-center mb-4 my-2">
+       
+        <div className="container mx-auto my-2">
+          <div className="text-green-800 text-center">{alert}</div>
+          <h1 className="text-3xl font-semibold mb-6">Search a Product</h1>
+          <div className="flex mb-2">
             <input
+              onChange={onDropdownEdit}
+              onBlur={()=>{setDropdown([])}}
               type="text"
-              // value={searchQuery}
-              // onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-gray-300 px-4 py-2 w-full mr-2"
-              placeholder="Search..."
+              placeholder="Enter a product name"
+              className="flex-1 border border-gray-300 px-4 py-2 rounded-l-md"
             />
-            
-            <select
-              // value={selectedOption}
-              // onChange={(e) => setSelectedOption(e.target.value)}
-              className="border border-gray-300 px-4 py-2"
-            >
+            <select className="border border-gray-300 px-4 py-2 rounded-r-md">
               <option value="">All</option>
-              <option value="option1">Option 1</option>
-              <option value="option2">Option 2</option>
-              <option value="option3">Option 3</option>
+              <option value="category1">Category 1</option>
+              <option value="category2">Category 2</option>
+              {/* Add more options as needed */}
             </select>
-
-            <button
-              // onClick={handleSearch}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ml-4"
-            >
-              Search
-            </button>
-          
           </div>
-          
         </div>
         <div className="container">
-          {dropdown.map(item=>{
-            
+          {loading && (
+            <div className="flex justify-center items-center ">
+              {" "}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="64px"
+                height="64px"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="gray"
+                  stroke-width="4"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  fill="none"
+                  stroke="lightgray"
+                  stroke-width="4"
+                >
+                  <animate
+                    attributeName="stroke-dasharray"
+                    attributeType="XML"
+                    from="1, 200"
+                    to="89, 200"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    attributeType="XML"
+                    from="0"
+                    to="-124"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 12 12"
+                    to="360 12 12"
+                    dur="1.5s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </svg>
+            </div>
+          )}
+          
+          <div className="dropcontainer absolute w-[90vw]  border-1 bg-purple-100 rounded-md ">
+
+          {dropdown.map((item) => {
+            return (
+              <div
+              className="container flex justify-between p-2 my-1 "
+              key={item.slug}
+              >
+                <span className="slug">{item.slug}</span>
+                <span className="slug">{item.price}</span>
+                <span className="slug">{item.quantity}</span>
+              </div>
+            );
           })}
         </div>
-       
-        
+        </div>
+
         {/* Adding a product  */}
         <div className="container mx-auto">
           <h1 className="text-3xl font-semibold mb-6">Add a Product</h1>
@@ -169,7 +241,7 @@ export default function Home() {
 
       {/* // Display Current Stock  */}
 
-      <div className="container mx-auto">
+      <div className="container mx-auto my-5">
         {/* <h1 className="font-bold mb-6 my-10">Display Current Stock </h1> */}
 
         <h1 className=" text-3xl font-bold mb-6 my-5">Display Current Stock</h1>
@@ -195,6 +267,7 @@ export default function Home() {
           </tbody>
         </table>
       </div>
+      
     </>
   );
 }
