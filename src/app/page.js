@@ -4,30 +4,30 @@ import Header from "/components/Header";
 
 export default function Home() {
   const [productForm, setProductForm] = useState({
-    productName: "",
-    quantity: "",
-    price: "",
+    // slug: "",
+    // quantity: "",
+    // price: "",
   });
 
   const [alert, setAlert] = useState("");
   const [products, setProducts] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingaAction, setLoadingAction] = useState(false);
   const [dropdown, setDropdown] = useState([
     // {
-    //   "_id": "64aa378851b721f453bc2b36",
-    //   "slug": "tshirt",
-    //   "quantity": "1",
-    //   "price": "1"
-    //   },
-    //   {
-    //     "_id": "64aa378851b721f453bc2b36",
-    //     "slug": "jeans",
-    //     "quantity": "1",
-    //     "price": "1"
-    //     }
-
-  ])
+    //   _id: "64aa378851b721f453bc2b36",
+    //   slug: "tshirt",
+    //   quantity: "1",
+    //   price: "1",
+    // },
+    // {
+    //   _id: "64aa378851b721f453bc2b36",
+    //   slug: "jeans",
+    //   quantity: "1",
+    //   price: "1",
+    // },
+  ]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -78,25 +78,41 @@ export default function Home() {
     if (!loading) {
       setLoading(true);
       setDropdown([]);
-      const response = await fetch("/api/search?query="+query);
+      const response = await fetch("/api/search?query=" + query);
       let rjson = await response.json();
       setDropdown(rjson.products);
       setLoading(false);
     }
   };
 
+  const buttonAction = async (action, slug, initialQuantity) => {
+    console.log(action, slug);
+    setLoadingAction(true);
+    if(query.length>3){
+    const response = await fetch("/api/action", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action, slug, initialQuantity }),
+    });
+    let r = await response.json()
+    console.log(r)
+    setLoadingAction(false);
+  }};
+
   return (
     <>
-       <div className="container mx-2 my-4">
+      <div className="container mx-2 my-4">
         <Header />
-       
+
         <div className="container mx-auto my-2">
           <div className="text-green-800 text-center">{alert}</div>
           <h1 className="text-3xl font-semibold mb-6">Search a Product</h1>
           <div className="flex mb-2">
             <input
               onChange={onDropdownEdit}
-              onBlur={()=>{setDropdown([])}}
+              // onBlur={()=>{setDropdown([])}}
               type="text"
               placeholder="Enter a product name"
               className="flex-1 border border-gray-300 px-4 py-2 rounded-l-md"
@@ -125,7 +141,7 @@ export default function Home() {
                   r="10"
                   fill="none"
                   stroke="gray"
-                  stroke-width="4"
+                  strokeWidth="4"
                 />
                 <circle
                   cx="12"
@@ -133,7 +149,7 @@ export default function Home() {
                   r="10"
                   fill="none"
                   stroke="lightgray"
-                  stroke-width="4"
+                  strokeWidth="4"
                 >
                   <animate
                     attributeName="stroke-dasharray"
@@ -163,22 +179,45 @@ export default function Home() {
               </svg>
             </div>
           )}
-          
-          <div className="dropcontainer absolute w-[90vw]  border-1 bg-purple-100 rounded-md ">
 
-          {dropdown.map((item) => {
-            return (
-              <div
-              className="container flex justify-between p-2 my-1 "
-              key={item.slug}
-              >
-                <span className="slug">{item.slug}</span>
-                <span className="slug">{item.price}</span>
-                <span className="slug">{item.quantity}</span>
-              </div>
-            );
-          })}
-        </div>
+          <div className="dropcontainer absolute w-[80vw]  border-1 bg-purple-100 rounded-md mx-2 ">
+            {dropdown.map((item) => {
+              return (
+                <div
+                  className="container flex justify-between p-2 my-1 "
+                  key={item.slug}
+                >
+                  <span className="slug">
+                    {item.slug} ({item.quantity} available for ₹{item.price})
+                  </span>
+                  <div>
+                    <button
+                      onClick={() => {
+                        buttonAction("minus", item.slug, item.quantity);
+                      }}
+                      disabled={loadingaAction}
+                      className="subtract inline-block px-3 py-1 cursor-pointer bg-purple-500 text-white font-semibold rounded-lg shadow-md disabled:bg-purple-200 cursor-pointer"
+                    >
+                      -
+                    </button>
+                    <button className="quantity inline-block w-3 mx-3">
+                      {" "}
+                      {item.quantity}{" "}
+                    </button>
+                    <button
+                      onClick={() => {
+                        buttonAction("plus", item.slug, item.quantity);
+                      }}
+                      disabled={loadingaAction}
+                      className="add inline-block px-3 py-1 cursor-pointer bg-purple-500 text-white font-semibold rounded-lg shadow-md disabled:bg-purple-200 cursor-pointer disable:bg-purple-button"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Adding a product  */}
@@ -248,7 +287,7 @@ export default function Home() {
 
         <table className="w-full mt-4">
           <thead>
-            <tr>
+            <tr >
               <th className="py-2 px-4 bg-gray-200">Product Name</th>
               <th className="py-2 px-4 bg-gray-200">Price</th>
               <th className="py-2 px-4 bg-gray-200">Quantity</th>
@@ -267,7 +306,6 @@ export default function Home() {
           </tbody>
         </table>
       </div>
-      
     </>
   );
 }
